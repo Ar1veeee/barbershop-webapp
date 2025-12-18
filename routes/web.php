@@ -72,7 +72,7 @@ Route::middleware(['auth', 'verified', 'customer'])->prefix('customer')->name('c
         Route::get('/create', 'create')->name('create');
         Route::post('/', 'store')->name('store');
         Route::get('/{booking}', 'show')->name('show');
-        Route::get('/{booking}/pay', 'pay')->name('pay');
+        Route::get('/{booking}/payment', 'payment')->name('payment');
         Route::post('/{booking}/cancel', 'cancel')->name('cancel');
     });
 

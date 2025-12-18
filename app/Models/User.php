@@ -52,7 +52,6 @@ class User extends Authenticatable implements MustVerifyEmail
 
             if (Storage::disk('public')->exists($localPath)) {
                 $url = asset('storage/' . $localPath);
-                \Log::info('Using local storage avatar: ' . $url);
                 return $url;
             }
 
@@ -131,13 +130,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Discount::class, 'created_by');
     }
 
-    // Customer-specific discounts
     public function customerDiscounts()
     {
         return $this->hasMany(CustomerDiscount::class, 'customer_id');
     }
 
-    // Available discounts for this customer
     public function availableDiscounts()
     {
         return $this->belongsToMany(Discount::class, 'customer_discounts', 'customer_id', 'discount_id')
@@ -145,7 +142,6 @@ class User extends Authenticatable implements MustVerifyEmail
             ->withTimestamps();
     }
 
-    // Discount usage history
     public function discountUsages()
     {
         return $this->hasMany(DiscountUsage::class, 'customer_id');
@@ -165,6 +161,20 @@ class User extends Authenticatable implements MustVerifyEmail
     public function scopeActive($query)
     {
         return $query->where('status', 'active');
+    }
+
+    public function scopeAvailableBarbersWithServices($query)
+    {
+        return $query->barbers()
+            ->active()
+            ->with([
+                'barberProfile.services' => function ($q) {
+                    $q->withPivot('custom_price', 'is_available');
+                }
+            ])
+            ->whereHas('barberProfile', function ($q) {
+                $q->where('is_available', true);
+            });
     }
 
     // Helper methods

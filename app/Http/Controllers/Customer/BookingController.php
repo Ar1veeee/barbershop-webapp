@@ -10,11 +10,17 @@ use App\Models\User;
 use App\Services\Customer\BookingService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class BookingController extends Controller
 {
     use AuthorizesRequests;
+
+    private function authorizeBooking(Booking $booking, string $ability = 'view'): void
+    {
+        $this->authorize($ability, $booking);
+    }
 
     public function __construct(
         protected BookingService $bookingService,
@@ -24,15 +30,20 @@ class BookingController extends Controller
     {
         $user = $request->user();
 
-        $baseQuery = Booking::where('customer_id', $user->id);
+        $statusCounts = Booking::where('customer_id', $user->id)
+            ->select('status', DB::raw('count(*) as total'))
+            ->groupBy('status')
+            ->pluck('total', 'status');
+
+        $totalAll = Booking::where('customer_id', $user->id)->count();
 
         $counts = [
-            'all' => (clone $baseQuery)->count(),
-            'pending' => (clone $baseQuery)->where('status', 'pending')->count(),
-            'confirmed' => (clone $baseQuery)->where('status', 'confirmed')->count(),
-            'in_progress' => (clone $baseQuery)->where('status', 'in_progress')->count(),
-            'completed' => (clone $baseQuery)->where('status', 'completed')->count(),
-            'cancelled' => (clone $baseQuery)->where('status', 'cancelled')->count(),
+            'all' => $totalAll,
+            'pending' => $statusCounts['pending'] ?? 0,
+            'confirmed' => $statusCounts['confirmed'] ?? 0,
+            'in_progress' => $statusCounts['in_progress'] ?? 0,
+            'completed' => $statusCounts['completed'] ?? 0,
+            'cancelled' => $statusCounts['cancelled'] ?? 0,
         ];
 
         $query = Booking::with(['barber.barberProfile', 'service'])
@@ -53,10 +64,7 @@ class BookingController extends Controller
 
     public function create(Request $request)
     {
-        $barbers = User::with(['barberProfile.services' => fn($q) => $q->withPivot('custom_price', 'is_available')])
-            ->barbers()->active()
-            ->whereHas('barberProfile', fn($q) => $q->where('is_available', true))
-            ->get();
+        $barbers = User::availableBarbersWithServices()->get();
 
         $services = Service::with('category')->active()->get();
 
@@ -69,25 +77,17 @@ class BookingController extends Controller
 
     public function store(StoreBookingRequest $request)
     {
-        try {
-            $booking = $this->bookingService->createBooking($request->validated(), $request->user());
+        $booking = $this->bookingService->createBooking($request->validated(), $request->user());
 
-            return redirect()->route('customer.bookings.pay', $booking)
-                ->with('success', 'Booking reserved! Complete payment within 30 minutes to confirm your slot.');
-        } catch (\Exception $e) {
-            return back()->withErrors(['error' => $e->getMessage()]);
-        }
+        return redirect()->route('customer.bookings.payment', $booking)
+            ->with('success', 'Booking reserved! Complete payment within 30 minutes to confirm your slot.');
     }
 
-    public function pay(Request $request, Booking $booking)
+    public function payment(Request $request, Booking $booking)
     {
-        $this->authorize('view', $booking);
+        $this->authorizeBooking($booking);
 
-        try {
-            $snapToken = $this->bookingService->generateSnapToken($booking, $request->user());
-        } catch (\Exception $e) {
-            return back()->withErrors(['error' => $e->getMessage()]);
-        }
+        $snapToken = $this->bookingService->generateSnapToken($booking, $request->user());
 
         return Inertia::render('Customer/Bookings/Payment', [
             'booking' => $booking->load(['barber.barberProfile', 'service']),
@@ -97,7 +97,7 @@ class BookingController extends Controller
 
     public function show(Booking $booking)
     {
-        $this->authorize('view', $booking);
+        $this->authorizeBooking($booking);
 
         $booking->load(['barber.barberProfile', 'service.category', 'review', 'discount']);
 
@@ -106,17 +106,9 @@ class BookingController extends Controller
 
     public function cancel(Request $request, Booking $booking)
     {
-        $this->authorize('cancel', $booking);
+        $this->authorizeBooking($booking, 'cancel');
 
-        if (!$booking->canBeCancelled()) {
-            return back()->withErrors(['error' => 'This booking cannot be cancelled']);
-        }
-
-        $booking->update([
-            'status' => 'cancelled',
-            'cancelled_by' => $request->user()->id,
-            'cancellation_reason' => $request->input('reason'),
-        ]);
+        $booking->cancelBy($request->user(), $request->input('reason'));
 
         return redirect()->route('customer.bookings.index')
             ->with('success', 'Booking cancelled successfully');

@@ -69,7 +69,6 @@ class Booking extends Model
         return $this->hasOne(DiscountUsage::class);
     }
 
-    // Update existing methods if needed
     public function calculateTotalPrice()
     {
         $this->total_price = $this->original_price - $this->discount_amount;
@@ -114,7 +113,6 @@ class Booking extends Model
             $minutesUntilBooking = now()->diffInMinutes($startTime, false);
 
             return $minutesUntilBooking >= 30;
-
         } catch (\Exception $e) {
             return false;
         }
@@ -123,5 +121,18 @@ class Booking extends Model
     public function canBeReviewed(): bool
     {
         return $this->status === 'completed' && !$this->review;
+    }
+
+    public function cancelBy(User $user, ?string $reason = null): void
+    {
+        if (!$this->canBeCancelled()) {
+            throw new \Exception('This booking cannot be cancelled');
+        }
+
+        $this->update([
+            'status' => 'cancelled',
+            'cancelled_by' => $user->id,
+            'cancellation_reason' => $reason,
+        ]);
     }
 }
