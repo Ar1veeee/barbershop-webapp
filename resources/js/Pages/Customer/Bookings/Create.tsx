@@ -140,7 +140,9 @@ export default function Create({
     >(null);
     const [validatingDiscount, setValidatingDiscount] = useState(false);
     const [discountError, setDiscountError] = useState('');
-    const [discountRecommendations, setDiscountRecommendations] = useState<DiscountRecommendation[]>([]);
+    const [discountRecommendations, setDiscountRecommendations] = useState<
+        DiscountRecommendation[]
+    >([]);
     const [loadingRecommendations, setLoadingRecommendations] = useState(false);
     const [showDiscountDropdown, setShowDiscountDropdown] = useState(false);
 
@@ -303,7 +305,9 @@ export default function Create({
                 setDiscountError(response.data.message);
             }
         } catch (error: any) {
-            setDiscountError(error.response?.data?.message || 'Failed to apply discount');
+            setDiscountError(
+                error.response?.data?.message || 'Failed to apply discount',
+            );
         } finally {
             setValidatingDiscount(false);
         }
@@ -335,7 +339,7 @@ export default function Create({
         } catch (error: any) {
             setDiscountError(
                 error.response?.data?.message ||
-                    'Failed to validate discount code',
+                'Failed to validate discount code',
             );
         } finally {
             setValidatingDiscount(false);
@@ -355,7 +359,14 @@ export default function Create({
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        post(route('customer.bookings.store'));
+        post(route('customer.bookings.store'), {
+            onError: (errors) => {
+                console.error('Booking creation failed:', errors);
+            },
+            onSuccess: () => {
+                console.log('Booking created successfully!');
+            },
+        });
     };
 
     const getBarberServices = () => {
@@ -427,8 +438,8 @@ export default function Create({
                                 >
                                     <ArrowLeft className="mr-2 h-4 w-4 transition-transform group-hover:-translate-x-1" />
                                     <span className="font-medium">
-                                    Back to Bookings
-                                </span>
+                                        Back to Bookings
+                                    </span>
                                 </Button>
                             </motion.div>
                         </Link>
@@ -473,25 +484,23 @@ export default function Create({
                                             className="flex items-center gap-4"
                                         >
                                             <div
-                                                className={`flex h-10 w-10 items-center justify-center rounded-xl border-2 font-semibold transition-all duration-300 ${
-                                                    step.completed
+                                                className={`flex h-10 w-10 items-center justify-center rounded-xl border-2 font-semibold transition-all duration-300 ${step.completed
                                                         ? 'border-black bg-black text-white'
                                                         : step.number ===
                                                             currentStep
-                                                          ? 'border-black text-black'
-                                                          : 'border-zinc-300 text-zinc-400'
-                                                }`}
+                                                            ? 'border-black text-black'
+                                                            : 'border-zinc-300 text-zinc-400'
+                                                    }`}
                                             >
                                                 {step.completed
                                                     ? '✓'
                                                     : step.number}
                                             </div>
                                             <div
-                                                className={`font-medium ${
-                                                    step.number === currentStep
+                                                className={`font-medium ${step.number === currentStep
                                                         ? 'text-black'
                                                         : 'text-zinc-500'
-                                                }`}
+                                                    }`}
                                             >
                                                 {step.title}
                                             </div>
@@ -530,13 +539,12 @@ export default function Create({
                                     {steps.map((step) => (
                                         <div
                                             key={step.number}
-                                            className={`h-2 w-8 rounded-full transition-all duration-300 ${
-                                                step.number === currentStep
+                                            className={`h-2 w-8 rounded-full transition-all duration-300 ${step.number === currentStep
                                                     ? 'bg-black'
                                                     : step.number < currentStep
-                                                      ? 'bg-zinc-800'
-                                                      : 'bg-zinc-200'
-                                            }`}
+                                                        ? 'bg-zinc-800'
+                                                        : 'bg-zinc-200'
+                                                }`}
                                         />
                                     ))}
                                 </div>
@@ -601,11 +609,10 @@ export default function Create({
                                                     >
                                                         <SelectTrigger
                                                             id="barber-select"
-                                                            className={`h-12 w-full border-zinc-300 bg-white ${
-                                                                errors.barber_id
+                                                            className={`h-12 w-full border-zinc-300 bg-white ${errors.barber_id
                                                                     ? 'border-red-500'
                                                                     : ''
-                                                            }`}
+                                                                }`}
                                                         >
                                                             <SelectValue placeholder="Choose your barber..." />
                                                         </SelectTrigger>
@@ -635,14 +642,14 @@ export default function Create({
                                                                                     {barber
                                                                                         .barber_profile
                                                                                         ?.specialization && (
-                                                                                        <div className="truncate text-xs text-zinc-500">
-                                                                                            {
-                                                                                                barber
-                                                                                                    .barber_profile
-                                                                                                    .specialization
-                                                                                            }
-                                                                                        </div>
-                                                                                    )}
+                                                                                            <div className="truncate text-xs text-zinc-500">
+                                                                                                {
+                                                                                                    barber
+                                                                                                        .barber_profile
+                                                                                                        .specialization
+                                                                                                }
+                                                                                            </div>
+                                                                                        )}
                                                                                 </div>
                                                                             </div>
                                                                             <div className="ml-3 flex-shrink-0 text-right">
@@ -749,13 +756,13 @@ export default function Create({
                                                                         {selectedBarber
                                                                             .barber_profile
                                                                             ?.is_available && (
-                                                                            <Badge
-                                                                                variant="outline"
-                                                                                className="border-green-500 text-xs text-green-600"
-                                                                            >
-                                                                                Available
-                                                                            </Badge>
-                                                                        )}
+                                                                                <Badge
+                                                                                    variant="outline"
+                                                                                    className="border-green-500 text-xs text-green-600"
+                                                                                >
+                                                                                    Available
+                                                                                </Badge>
+                                                                            )}
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -817,11 +824,10 @@ export default function Create({
                                                 >
                                                     <SelectTrigger
                                                         id="service-select"
-                                                        className={`h-12 w-full border-zinc-300 bg-white ${
-                                                            errors.service_id
+                                                        className={`h-12 w-full border-zinc-300 bg-white ${errors.service_id
                                                                 ? 'border-red-500'
                                                                 : ''
-                                                        } ${!selectedBarber ? 'cursor-not-allowed opacity-50' : ''}`}
+                                                            } ${!selectedBarber ? 'cursor-not-allowed opacity-50' : ''}`}
                                                     >
                                                         <SelectValue
                                                             placeholder={
@@ -864,7 +870,7 @@ export default function Create({
                                                                                 service
                                                                                     .pivot
                                                                                     ?.custom_price ||
-                                                                                    service.base_price,
+                                                                                service.base_price,
                                                                             ).toLocaleString(
                                                                                 'id-ID',
                                                                             )}
@@ -1096,7 +1102,7 @@ export default function Create({
                                                                 </p>
                                                             </motion.div>
                                                         ) : timeSlots.length ===
-                                                          0 ? (
+                                                            0 ? (
                                                             <motion.div
                                                                 key="no-slots"
                                                                 initial={{
@@ -1157,25 +1163,24 @@ export default function Create({
                                                                             whileHover={
                                                                                 slot.available
                                                                                     ? {
-                                                                                          scale: 1.05,
-                                                                                      }
+                                                                                        scale: 1.05,
+                                                                                    }
                                                                                     : {}
                                                                             }
                                                                             whileTap={
                                                                                 slot.available
                                                                                     ? {
-                                                                                          scale: 0.95,
-                                                                                      }
+                                                                                        scale: 0.95,
+                                                                                    }
                                                                                     : {}
                                                                             }
-                                                                            className={`rounded-xl border-2 p-3 text-sm font-medium transition-all duration-300 ${
-                                                                                selectedTime ===
-                                                                                slot.time
+                                                                            className={`rounded-xl border-2 p-3 text-sm font-medium transition-all duration-300 ${selectedTime ===
+                                                                                    slot.time
                                                                                     ? 'border-black bg-black text-white'
                                                                                     : slot.available
-                                                                                      ? 'border-zinc-300 text-zinc-700 hover:border-black hover:bg-zinc-50'
-                                                                                      : 'cursor-not-allowed border-zinc-200 text-zinc-400'
-                                                                            }`}
+                                                                                        ? 'border-zinc-300 text-zinc-700 hover:border-black hover:bg-zinc-50'
+                                                                                        : 'cursor-not-allowed border-zinc-200 text-zinc-400'
+                                                                                }`}
                                                                             onClick={() =>
                                                                                 slot.available &&
                                                                                 handleTimeSelect(
@@ -1261,33 +1266,63 @@ export default function Create({
                                                         <div className="relative flex-1">
                                                             <Input
                                                                 placeholder="Enter discount code or choose from available"
-                                                                value={discountCode}
-                                                                onChange={(e) => {
-                                                                    setDiscountCode(e.target.value.toUpperCase());
-                                                                    setShowDiscountDropdown(true);
+                                                                value={
+                                                                    discountCode
+                                                                }
+                                                                onChange={(
+                                                                    e,
+                                                                ) => {
+                                                                    setDiscountCode(
+                                                                        e.target.value.toUpperCase(),
+                                                                    );
+                                                                    setShowDiscountDropdown(
+                                                                        true,
+                                                                    );
                                                                 }}
-                                                                onFocus={() => setShowDiscountDropdown(true)}
-                                                                disabled={!!appliedDiscount || validatingDiscount}
+                                                                onFocus={() =>
+                                                                    setShowDiscountDropdown(
+                                                                        true,
+                                                                    )
+                                                                }
+                                                                disabled={
+                                                                    !!appliedDiscount ||
+                                                                    validatingDiscount
+                                                                }
                                                                 className="flex-1 border-zinc-300 bg-white pr-10"
                                                             />
 
                                                             {/* Dropdown Trigger */}
-                                                            {!appliedDiscount && discountRecommendations.length > 0 && (
-                                                                <button
-                                                                    type="button"
-                                                                    onClick={() => setShowDiscountDropdown(!showDiscountDropdown)}
-                                                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600"
-                                                                >
-                                                                    <ChevronDown className={`h-4 w-4 transition-transform ${showDiscountDropdown ? 'rotate-180' : ''}`} />
-                                                                </button>
-                                                            )}
+                                                            {!appliedDiscount &&
+                                                                discountRecommendations.length >
+                                                                0 && (
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() =>
+                                                                            setShowDiscountDropdown(
+                                                                                !showDiscountDropdown,
+                                                                            )
+                                                                        }
+                                                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600"
+                                                                    >
+                                                                        <ChevronDown
+                                                                            className={`h-4 w-4 transition-transform ${showDiscountDropdown ? 'rotate-180' : ''}`}
+                                                                        />
+                                                                    </button>
+                                                                )}
                                                         </div>
 
                                                         {!appliedDiscount ? (
                                                             <Button
                                                                 type="button"
-                                                                onClick={handleApplyDiscount}
-                                                                disabled={!discountCode.trim() || validatingDiscount || !selectedService || !selectedBarber}
+                                                                onClick={
+                                                                    handleApplyDiscount
+                                                                }
+                                                                disabled={
+                                                                    !discountCode.trim() ||
+                                                                    validatingDiscount ||
+                                                                    !selectedService ||
+                                                                    !selectedBarber
+                                                                }
                                                                 className="bg-black text-white hover:bg-zinc-800"
                                                             >
                                                                 {validatingDiscount ? (
@@ -1299,7 +1334,9 @@ export default function Create({
                                                         ) : (
                                                             <Button
                                                                 type="button"
-                                                                onClick={handleRemoveDiscount}
+                                                                onClick={
+                                                                    handleRemoveDiscount
+                                                                }
                                                                 variant="outline"
                                                                 className="border-red-300 text-red-600 hover:border-red-600 hover:bg-red-50"
                                                             >
@@ -1312,90 +1349,155 @@ export default function Create({
                                                     <AnimatePresence>
                                                         {showDiscountDropdown && (
                                                             <motion.div
-                                                                initial={{ opacity: 0, y: -10, height: 0 }}
-                                                                animate={{ opacity: 1, y: 0, height: 'auto' }}
-                                                                exit={{ opacity: 0, y: -10, height: 0 }}
+                                                                initial={{
+                                                                    opacity: 0,
+                                                                    y: -10,
+                                                                    height: 0,
+                                                                }}
+                                                                animate={{
+                                                                    opacity: 1,
+                                                                    y: 0,
+                                                                    height: 'auto',
+                                                                }}
+                                                                exit={{
+                                                                    opacity: 0,
+                                                                    y: -10,
+                                                                    height: 0,
+                                                                }}
                                                                 className="absolute left-0 right-0 top-full z-50 mt-1 max-h-60 overflow-y-auto rounded-xl border border-zinc-200 bg-white shadow-lg"
                                                             >
                                                                 <div className="p-2">
                                                                     <div className="mb-2 px-3 py-1 text-xs font-medium text-zinc-500">
-                                                                        AVAILABLE DISCOUNTS
+                                                                        AVAILABLE
+                                                                        DISCOUNTS
                                                                     </div>
 
                                                                     {loadingRecommendations ? (
                                                                         <div className="flex items-center justify-center py-4">
                                                                             <Loader className="h-4 w-4 animate-spin" />
-                                                                            <span className="ml-2 text-sm text-zinc-500">Loading discounts...</span>
+                                                                            <span className="ml-2 text-sm text-zinc-500">
+                                                                                Loading
+                                                                                discounts...
+                                                                            </span>
                                                                         </div>
                                                                     ) : (
-                                                                        discountRecommendations.map((discount, index) => (
-                                                                            <motion.button
-                                                                                key={discount.id}
-                                                                                type="button"
-                                                                                initial={{ opacity: 0, x: -10 }}
-                                                                                animate={{ opacity: 1, x: 0 }}
-                                                                                transition={{ delay: index * 0.05 }}
-                                                                                onClick={() => handleSelectDiscount(discount)}
-                                                                                disabled={!discount.is_eligible}
-                                                                                className={`flex w-full items-center justify-between rounded-lg p-3 text-left transition-all ${
-                                                                                    discount.is_eligible
-                                                                                        ? 'hover:bg-zinc-50 hover:shadow-sm cursor-pointer'
-                                                                                        : 'cursor-not-allowed opacity-50'
-                                                                                }`}
-                                                                            >
-                                                                                <div className="flex-1">
-                                                                                    <div className="flex items-center gap-2">
-                                                                                        <Gift className="h-4 w-4 text-green-600" />
-                                                                                        <div>
-                                                                                            <div className="font-medium text-black">
-                                                                                                {discount.name}
+                                                                        discountRecommendations.map(
+                                                                            (
+                                                                                discount,
+                                                                                index,
+                                                                            ) => (
+                                                                                <motion.button
+                                                                                    key={
+                                                                                        discount.id
+                                                                                    }
+                                                                                    type="button"
+                                                                                    initial={{
+                                                                                        opacity: 0,
+                                                                                        x: -10,
+                                                                                    }}
+                                                                                    animate={{
+                                                                                        opacity: 1,
+                                                                                        x: 0,
+                                                                                    }}
+                                                                                    transition={{
+                                                                                        delay:
+                                                                                            index *
+                                                                                            0.05,
+                                                                                    }}
+                                                                                    onClick={() =>
+                                                                                        handleSelectDiscount(
+                                                                                            discount,
+                                                                                        )
+                                                                                    }
+                                                                                    disabled={
+                                                                                        !discount.is_eligible
+                                                                                    }
+                                                                                    className={`flex w-full items-center justify-between rounded-lg p-3 text-left transition-all ${discount.is_eligible
+                                                                                            ? 'cursor-pointer hover:bg-zinc-50 hover:shadow-sm'
+                                                                                            : 'cursor-not-allowed opacity-50'
+                                                                                        }`}
+                                                                                >
+                                                                                    <div className="flex-1">
+                                                                                        <div className="flex items-center gap-2">
+                                                                                            <Gift className="h-4 w-4 text-green-600" />
+                                                                                            <div>
+                                                                                                <div className="font-medium text-black">
+                                                                                                    {
+                                                                                                        discount.name
+                                                                                                    }
+                                                                                                </div>
+                                                                                                <div className="text-sm text-zinc-500">
+                                                                                                    {discount.discount_type ===
+                                                                                                        'percentage'
+                                                                                                        ? `${Math.round(discount.discount_value)}% OFF`
+                                                                                                        : `Rp ${discount.discount_amount.toLocaleString('id-ID')} OFF`}
+                                                                                                    {discount.min_order_amount && (
+                                                                                                        <span>
+                                                                                                            {' '}
+                                                                                                            •
+                                                                                                            Min.
+                                                                                                            order
+                                                                                                            Rp{' '}
+                                                                                                            {discount.min_order_amount.toLocaleString(
+                                                                                                                'id-ID',
+                                                                                                            )}
+                                                                                                        </span>
+                                                                                                    )}
+                                                                                                </div>
                                                                                             </div>
-                                                                                            <div className="text-sm text-zinc-500">
-                                                                                                {discount.discount_type === 'percentage'
-                                                                                                    ? `${Math.round(discount.discount_value)}% OFF`
-                                                                                                    : `Rp ${discount.discount_amount.toLocaleString('id-ID')} OFF`
+                                                                                        </div>
+                                                                                        {discount.description && (
+                                                                                            <div className="mt-1 text-xs text-zinc-400">
+                                                                                                {
+                                                                                                    discount.description
                                                                                                 }
-                                                                                                {discount.min_order_amount && (
-                                                                                                    <span> • Min. order Rp {discount.min_order_amount.toLocaleString('id-ID')}</span>
-                                                                                                )}
                                                                                             </div>
-                                                                                        </div>
+                                                                                        )}
                                                                                     </div>
-                                                                                    {discount.description && (
-                                                                                        <div className="mt-1 text-xs text-zinc-400">
-                                                                                            {discount.description}
-                                                                                        </div>
-                                                                                    )}
-                                                                                </div>
 
-                                                                                <div className="flex items-center gap-2">
-                                                                                    {discount.is_eligible ? (
-                                                                                        <>
-                                                                                            <div className="text-right">
-                                                                                                <div className="text-sm font-bold text-green-600">
-                                                                                                    Rp {discount.final_price.toLocaleString('id-ID')}
+                                                                                    <div className="flex items-center gap-2">
+                                                                                        {discount.is_eligible ? (
+                                                                                            <>
+                                                                                                <div className="text-right">
+                                                                                                    <div className="text-sm font-bold text-green-600">
+                                                                                                        Rp{' '}
+                                                                                                        {discount.final_price.toLocaleString(
+                                                                                                            'id-ID',
+                                                                                                        )}
+                                                                                                    </div>
+                                                                                                    <div className="text-xs text-zinc-400 line-through">
+                                                                                                        Rp{' '}
+                                                                                                        {getFinalPrice().toLocaleString(
+                                                                                                            'id-ID',
+                                                                                                        )}
+                                                                                                    </div>
                                                                                                 </div>
-                                                                                                <div className="text-xs text-zinc-400 line-through">
-                                                                                                    Rp {getFinalPrice().toLocaleString('id-ID')}
-                                                                                                </div>
-                                                                                            </div>
-                                                                                            <ChevronRight className="h-4 w-4 text-zinc-400" />
-                                                                                        </>
-                                                                                    ) : (
-                                                                                        <Badge variant="outline" className="text-xs text-red-500 border-red-200">
-                                                                                            Not eligible
-                                                                                        </Badge>
-                                                                                    )}
-                                                                                </div>
-                                                                            </motion.button>
-                                                                        ))
+                                                                                                <ChevronRight className="h-4 w-4 text-zinc-400" />
+                                                                                            </>
+                                                                                        ) : (
+                                                                                            <Badge
+                                                                                                variant="outline"
+                                                                                                className="border-red-200 text-xs text-red-500"
+                                                                                            >
+                                                                                                Not
+                                                                                                eligible
+                                                                                            </Badge>
+                                                                                        )}
+                                                                                    </div>
+                                                                                </motion.button>
+                                                                            ),
+                                                                        )
                                                                     )}
 
-                                                                    {!loadingRecommendations && discountRecommendations.length === 0 && (
-                                                                        <div className="py-4 text-center text-sm text-zinc-500">
-                                                                            No available discounts
-                                                                        </div>
-                                                                    )}
+                                                                    {!loadingRecommendations &&
+                                                                        discountRecommendations.length ===
+                                                                        0 && (
+                                                                            <div className="py-4 text-center text-sm text-zinc-500">
+                                                                                No
+                                                                                available
+                                                                                discounts
+                                                                            </div>
+                                                                        )}
                                                                 </div>
                                                             </motion.div>
                                                         )}
@@ -1406,15 +1508,25 @@ export default function Create({
                                                 {showDiscountDropdown && (
                                                     <div
                                                         className="fixed inset-0 z-40"
-                                                        onClick={() => setShowDiscountDropdown(false)}
+                                                        onClick={() =>
+                                                            setShowDiscountDropdown(
+                                                                false,
+                                                            )
+                                                        }
                                                     />
                                                 )}
 
                                                 {/* Discount Error */}
                                                 {discountError && (
                                                     <motion.p
-                                                        initial={{ opacity: 0, y: -10 }}
-                                                        animate={{ opacity: 1, y: 0 }}
+                                                        initial={{
+                                                            opacity: 0,
+                                                            y: -10,
+                                                        }}
+                                                        animate={{
+                                                            opacity: 1,
+                                                            y: 0,
+                                                        }}
                                                         className="text-sm text-red-500"
                                                     >
                                                         {discountError}
@@ -1426,7 +1538,9 @@ export default function Create({
                                                     {appliedDiscount && (
                                                         <motion.div
                                                             // @ts-ignore
-                                                            variants={discountSlideIn}
+                                                            variants={
+                                                                discountSlideIn
+                                                            }
                                                             initial="hidden"
                                                             animate="visible"
                                                             exit="hidden"
@@ -1437,18 +1551,27 @@ export default function Create({
                                                                     <Gift className="h-5 w-5 text-green-600" />
                                                                     <div>
                                                                         <div className="font-semibold text-green-800">
-                                                                            {appliedDiscount.name}
+                                                                            {
+                                                                                appliedDiscount.name
+                                                                            }
                                                                         </div>
                                                                         <div className="text-sm text-green-600">
-                                                                            Code: {appliedDiscount.code} •
-                                                                            {appliedDiscount.discount_type === 'percentage'
+                                                                            Code:{' '}
+                                                                            {
+                                                                                appliedDiscount.code
+                                                                            }{' '}
+                                                                            •
+                                                                            {appliedDiscount.discount_type ===
+                                                                                'percentage'
                                                                                 ? ` ${Math.round(appliedDiscount.discount_value)}% OFF`
-                                                                                : ` Rp ${appliedDiscount.discount_amount.toLocaleString('id-ID')} OFF`
-                                                                            }
+                                                                                : ` Rp ${appliedDiscount.discount_amount.toLocaleString('id-ID')} OFF`}
                                                                         </div>
                                                                     </div>
                                                                 </div>
-                                                                <Badge variant="outline" className="border-green-500 text-green-600">
+                                                                <Badge
+                                                                    variant="outline"
+                                                                    className="border-green-500 text-green-600"
+                                                                >
                                                                     Applied
                                                                 </Badge>
                                                             </div>
@@ -1561,9 +1684,9 @@ export default function Create({
                                                 <p className="font-semibold text-black">
                                                     {selectedDate
                                                         ? format(
-                                                              selectedDate,
-                                                              'EEE, MMM d',
-                                                          )
+                                                            selectedDate,
+                                                            'EEE, MMM d',
+                                                        )
                                                         : 'Not selected'}
                                                 </p>
                                                 <p className="text-sm text-zinc-600">
@@ -1705,13 +1828,13 @@ export default function Create({
                                                         }}
                                                         className="flex items-center gap-2"
                                                     >
-                                                        <Loader className="h-4 w-4" />
+                                                        <Loader className="h-4 w-4 animate-spin" />
                                                         Processing...
                                                     </motion.div>
                                                 ) : (
                                                     <div className="flex items-center gap-2">
                                                         <CheckCircle2 className="h-5 w-5" />
-                                                        Confirm Booking
+                                                        Proceed to Payment
                                                     </div>
                                                 )}
                                             </Button>

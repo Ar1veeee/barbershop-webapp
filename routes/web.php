@@ -29,45 +29,32 @@ use App\Http\Controllers\Admin\CategoryController as AdminCategory;
 use App\Http\Controllers\Admin\DiscountController as AdminDiscount;
 use App\Http\Controllers\Admin\BookingController as AdminBooking;
 use App\Http\Controllers\Admin\ReportController as AdminReport;
+use Illuminate\Http\Request;
 
 // ============================================
 // PUBLIC ROUTES
 // ============================================
 Route::get('/', function () {
-    if (auth()->check()) {
-        $user = auth()->user();
-        return redirect()->route($user->role . '.dashboard');
-    }
-
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
         'laravelVersion' => Application::VERSION,
         'phpVersion' => PHP_VERSION,
     ]);
-})->name('home');
+})->name('home')->middleware('redirect.role');
 
 // Redirect after login based on role
-Route::get('/dashboard', function () {
-    $user = auth()->user();
+Route::get('/dashboard', function (Request $request) {
+    $user = $request->user();
 
-    switch ($user->role) {
-        case 'customer':
-            return redirect()->route('customer.dashboard');
-        case 'barber':
-            return redirect()->route('barber.dashboard');
-        case 'admin':
-            return redirect()->route('admin.dashboard');
-        default:
-            abort(403, 'Unauthorized access');
-    }
+    return redirect()->route($user->role . ".dashboard");
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 // ============================================
 // CUSTOMER ROUTES
 // ============================================
 Route::middleware(['auth', 'verified', 'customer'])->prefix('customer')->name('customer.')->group(function () {
-    // Dashboard
+    // Dashboard`
     Route::get('/dashboard', [CustomerDashboard::class, 'index'])->name('dashboard');
 
     // Discounts
@@ -85,6 +72,7 @@ Route::middleware(['auth', 'verified', 'customer'])->prefix('customer')->name('c
         Route::get('/create', 'create')->name('create');
         Route::post('/', 'store')->name('store');
         Route::get('/{booking}', 'show')->name('show');
+        Route::get('/{booking}/pay', 'pay')->name('pay');
         Route::post('/{booking}/cancel', 'cancel')->name('cancel');
     });
 

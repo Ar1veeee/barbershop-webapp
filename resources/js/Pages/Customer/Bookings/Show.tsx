@@ -826,6 +826,16 @@ export default function Show({ booking }: BookingShowProps) {
                                                         </div>
                                                     </motion.div>
                                                 )}
+
+                                                <div className="flex items-center justify-between pt-2">
+                                                    <span className="text-lg font-bold">
+                                                        Payment Status
+                                                    </span>
+                                                    <span className="text-2xl font-bold">
+                                                        {booking.payment_status}
+                                                    </span>
+                                                </div>
+
                                             </div>
                                         </CardContent>
                                     </Card>

@@ -8,7 +8,6 @@ use App\Models\ServiceCategory;
 use App\Models\Service;
 use App\Models\BarberProfile;
 use App\Models\BarberSchedule;
-use App\Models\BarberService;
 use App\Models\Booking;
 use App\Models\Review;
 use App\Models\Transaction;
@@ -204,10 +203,7 @@ class DatabaseSeeder extends Seeder
             $customerUsers[] = $user;
         }
 
-        // Create Dummy Bookings, Transactions, and Reviews
         $services = Service::all();
-        $bookingStatuses = ['pending', 'confirmed', 'in_progress', 'completed', 'cancelled'];
-        $paymentStatuses = ['pending', 'paid', 'refunded'];
 
         $startDate = Carbon::now()->subDays(30);
         $endDate = Carbon::now()->addDays(7);
@@ -355,9 +351,9 @@ class DatabaseSeeder extends Seeder
     private function getPaymentStatusBasedOnBookingStatus(string $bookingStatus): string
     {
         return match($bookingStatus) {
-            'cancelled' => rand(0, 1) ? 'refunded' : 'pending',
+            'cancelled' => rand(0, 1) ? 'refunded' : 'unpaid',
             'completed', 'in_progress', 'confirmed' => 'paid',
-            default => 'pending',
+            default => 'unpaid',
         };
     }
 

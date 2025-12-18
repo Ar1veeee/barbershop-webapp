@@ -18,7 +18,7 @@ return new class extends Migration
             $table->time('end_time');
             $table->enum('status', ['pending', 'confirmed', 'in_progress', 'completed', 'cancelled'])->default('pending');
             $table->decimal('total_price', 10, 2);
-            $table->enum('payment_status', ['pending', 'paid', 'refunded'])->default('pending');
+            $table->enum('payment_status', ['unpaid', 'paid', 'refunded'])->default('unpaid');
             $table->string('payment_method')->nullable();
             $table->text('notes')->nullable();
             $table->foreignId('cancelled_by')->nullable()->constrained('users')->onDelete('set null');
