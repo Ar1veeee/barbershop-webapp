@@ -8,7 +8,6 @@ use App\Models\Booking;
 use App\Models\Service;
 use App\Models\User;
 use App\Services\Customer\BookingService;
-use App\Services\Customer\PaymentService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -19,7 +18,6 @@ class BookingController extends Controller
 
     public function __construct(
         protected BookingService $bookingService,
-        protected PaymentService $paymentService,
     ) {}
 
     public function index(Request $request)
@@ -86,7 +84,7 @@ class BookingController extends Controller
         $this->authorize('view', $booking);
 
         try {
-            $snapToken = $this->paymentService->generateSnapToken($booking, $request->user());
+            $snapToken = $this->bookingService->generateSnapToken($booking, $request->user());
         } catch (\Exception $e) {
             return back()->withErrors(['error' => $e->getMessage()]);
         }
